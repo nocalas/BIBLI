@@ -1,0 +1,118 @@
+Here’s how you can pull the “Next Up” data from a separate third Google Sheet and position it between the “Currently Reading” and “Reading History” sections on your site.
+
+Steps to Implement the “Next Up” Section
+
+1. Create the Third Google Sheet
+	1.	Open Google Sheets and create a new sheet for “Next Up”.
+	2.	Add columns:
+	•	Book Title (Column A)
+	•	Author (Column B)
+	•	Wikipedia Link (Column C, optional)
+	•	Image URL (Column D, optional)
+	3.	Publish this sheet to the web:
+	•	Go to File > Share > Publish to Web.
+	•	Copy the published link.
+
+2. Update Your Flask App
+	1.	Add a function to fetch data from the new sheet:
+In your app.py, modify or add a function to fetch data from the new Google Sheet:
+
+def get_next_up_sheet_data(sheet_id):
+    url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv"
+    response = requests.get(url)
+    data = pd.read_csv(io.StringIO(response.text))
+    return data.values.tolist()
+
+
+	2.	Fetch “Next Up” data in your route:
+Update your index() route to include this new data:
+
+@app.route('/')
+def index():
+    currently_reading = get_sheet_data("Currently Reading")
+    next_up = get_next_up_sheet_data("THIRD_GOOGLE_SHEET_ID")  # Replace with your third sheet's ID
+    reading_history = get_sheet_data("Reading History")
+    return render_template(
+        'index.html',
+        currently_reading=currently_reading,
+        next_up=next_up,
+        reading_history=reading_history
+    )
+
+3. Update the HTML Template
+
+In index.html, position the “Next Up” section between “Currently Reading” and “Reading History”:
+	1.	Add this block between the two existing sections:
+
+<section class="next-up">
+    <h2>Next Up</h2>
+    <div class="next-up-container">
+        {% for book in next_up %}
+            <div class="book">
+                <h3><a href="{{ book[2] }}" target="_blank">{{ book[0] }}</a></h3>
+                <p>{{ book[1] }}</p>
+                {% if book[3] %}
+                    <img src="{{ book[3] }}" alt="{{ book[0] }}" />
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+
+	2.	Explanation of placeholders:
+	•	{{ book[0] }}: Title of the book.
+	•	{{ book[1] }}: Author.
+	•	{{ book[2] }}: Wikipedia link.
+	•	{{ book[3] }}: Image URL (if provided).
+
+4. Style the Section
+
+In your style.css, style the “Next Up” section to ensure it visually fits between the other sections:
+
+.next-up {
+    margin: 2rem 0;
+    padding: 1rem;
+    background-color: #f1f1f1;
+    border-radius: 8px;
+}
+
+.next-up h2 {
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.next-up-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.next-up-container .book {
+    flex: 0 1 calc(33.333% - 1rem);
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    background-color: #fff;
+    text-align: center;
+}
+
+.next-up-container .book img {
+    max-width: 100%;
+    height: auto;
+    margin-top: 0.5rem;
+    border-radius: 4px;
+}
+
+5. Test the Updates
+	1.	Restart your Flask server.
+	2.	Visit the site and ensure the “Next Up” section is displayed between “Currently Reading” and “Reading History.”
+
+6. Optional Enhancements
+	•	Add navigation links at the top or side to quickly jump to each section.
+	•	Include an indicator or label (e.g., “Coming Soon!”) for the “Next Up” section.
+	•	Optimize the layout for smaller screens by using responsive CSS.
+
+Would you like help with testing or refining the display?

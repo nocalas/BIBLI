@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <!-- Currently Reading Section -->
+    <div class="col-md-12 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Currently Reading</h2>
+                {% if current_book %}
+                    <div class="currently-reading-frame">
+                        <div class="currently-reading">
+                            <!-- Book Info Section -->
+                            <div class="book-info">
+                                {% if current_book.wiki_link %}
+                                    <h2>
+                                        <a href="{{ current_book.wiki_link }}" 
+                                           target="_blank" 
+                                           class="text-success text-decoration-none"
+                                           data-bs-toggle="tooltip"
+                                           data-bs-placement="top"
+                                           title="Click to read more about '{{ current_book.title }}' on Wikipedia">
+                                            {{ current_book.title }}
+                                            <i class="fab fa-wikipedia-w ms-1 small"></i>
+                                        </a>
+                                    </h2>
+                                {% else %}
+                                    <h2 class="book-title">{{ current_book.title }}</h2>
+                                {% endif %}
+                                <p>by {{ current_book.author }}</p>
+                            </div>
+
+                            <!-- Book Cover Image Section -->
+                            {% if current_book.image_url %}
+                            <div class="book-image">
+                                <img src="{{ current_book.image_url }}" 
+                                     alt="Cover of {{ current_book.title }}"
+                                     class="img-fluid"
+                                     onerror="this.src='https://via.placeholder.com/200x300?text=No+Cover+Available'"/>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="alert alert-success">
+                        No book currently being read
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Next Up Section -->
+    <div class="col-md-12 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Next Up</h2>
+                {% if next_up_books %}
+                    <div class="next-up-container">
+                        <div class="row row-cols-1 row-cols-md-3 g-4">
+                            {% for book in next_up_books %}
+                                <div class="col">
+                                    <div class="card h-100 border-0 shadow-sm">
+                                        {% if book.image_url %}
+                                            <img src="{{ book.image_url }}" 
+                                                 class="card-img-top p-3"
+                                                 alt="Cover of {{ book.title }}"
+                                                 onerror="this.src='https://via.placeholder.com/200x300?text=No+Cover+Available'"/>
+                                        {% endif %}
+                                        <div class="card-body text-center">
+                                            {% if book.wiki_link %}
+                                                <h5 class="card-title">
+                                                    <a href="{{ book.wiki_link }}" 
+                                                       target="_blank"
+                                                       class="text-success text-decoration-none"
+                                                       data-bs-toggle="tooltip"
+                                                       data-bs-placement="top"
+                                                       title="Learn more about '{{ book.title }}' on Wikipedia">
+                                                        {{ book.title }}
+                                                        <i class="fab fa-wikipedia-w ms-1 small"></i>
+                                                    </a>
+                                                </h5>
+                                            {% else %}
+                                                <h5 class="card-title">{{ book.title }}</h5>
+                                            {% endif %}
+                                            <p class="card-text text-muted">by {{ book.author }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="alert alert-success">
+                        No upcoming books in the queue
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Reading History Section -->
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Reading History</h2>
+                {% if reading_history %}
+                    <div class="accordion" id="readingHistory">
+                        {% for year, books in reading_history.items() %}
+                            <div class="accordion-item">
+                                <h3 class="accordion-header" id="heading{{ year }}">
+                                    <button class="accordion-button {% if not loop.first %}collapsed{% endif %}" 
+                                            type="button" 
+                                            data-bs-toggle="collapse" 
+                                            data-bs-target="#collapse{{ year }}"
+                                            aria-expanded="{{ 'true' if loop.first else 'false' }}"
+                                            aria-controls="collapse{{ year }}">
+                                        {{ year }}
+                                        <span class="badge bg-success rounded-pill ms-2">{{ books|length }} books</span>
+                                    </button>
+                                </h3>
+                                <div id="collapse{{ year }}" 
+                                     class="accordion-collapse collapse {% if loop.first %}show{% endif %}"
+                                     aria-labelledby="heading{{ year }}"
+                                     data-bs-parent="#readingHistory">
+                                    <div class="accordion-body">
+                                        <ul class="list-unstyled">
+                                            {% for book in books %}
+                                                <li class="mb-2">
+                                                    <i class="fas fa-book me-2 text-success"></i>
+                                                    {% if book.wiki_link %}
+                                                        <strong>
+                                                            <a href="{{ book.wiki_link }}" 
+                                                               target="_blank" 
+                                                               class="text-success text-decoration-none"
+                                                               data-bs-toggle="tooltip"
+                                                               data-bs-placement="top"
+                                                               title="Click to read more about '{{ book.title }}' on Wikipedia">
+                                                                {{ book.title }}
+                                                                <i class="fab fa-wikipedia-w ms-1 small"></i>
+                                                            </a>
+                                                        </strong>
+                                                    {% else %}
+                                                        <strong>{{ book.title }}</strong>
+                                                    {% endif %}
+                                                    by {{ book.author }}
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-success">
+                        No reading history available
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,128 @@
+Instructions for AI Developer to Add Image and Wikipedia Link to the “Currently Reading” Section:
+
+1. Update the HTML Structure
+
+Modify the “Currently Reading” section in the HTML file to include both the Wikipedia link and the book cover image.
+
+<div class="currently-reading-frame">
+    <div class="currently-reading">
+        <!-- Book Info Section -->
+        <div class="book-info">
+            <h2>
+                <a href="{{ wikipedia_link }}" target="_blank">{{ title }}</a>
+            </h2>
+            <p>by {{ author }}</p>
+        </div>
+        
+        <!-- Book Cover Image Section -->
+        <div class="book-image">
+            <img src="{{ image_url }}" alt="Book Cover for {{ title }}" />
+        </div>
+    </div>
+</div>
+
+2. Update CSS for Styling
+
+Add the following CSS to style the “Currently Reading” section in a minimalist design:
+
+/* Frame for the Currently Reading Section */
+.currently-reading-frame {
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 20px;
+    max-width: 800px;
+    margin: 20px auto;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Layout for Book Info and Image */
+.currently-reading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Title and Author Section */
+.book-info {
+    flex: 1;
+    margin-right: 20px;
+}
+
+/* Clickable Title Link */
+.book-info h2 a {
+    text-decoration: none;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #2c3e50;
+    transition: color 0.2s ease-in-out;
+}
+
+.book-info h2 a:hover {
+    color: #3498db;
+}
+
+/* Author Text */
+.book-info p {
+    font-size: 1.1em;
+    color: #7f8c8d;
+    margin-top: 5px;
+}
+
+/* Book Cover Image Styling */
+.book-image img {
+    max-width: 150px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Design for Small Screens */
+@media (max-width: 768px) {
+    .currently-reading {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .book-image img {
+        margin-top: 15px;
+        max-width: 100%;
+    }
+}
+
+3. Adjust Python Code for Data Fetching
+
+Ensure that your Python backend fetches both the Wikipedia link and image URL from the “Currently Reading” Google Sheet.
+
+Example Python Update:
+
+@app.route("/")
+def index():
+    # Fetch Currently Reading data
+    current_data = fetch_data_from_google_sheet('Currently Reading', 'A2:D')
+    title, author, wikipedia_link, image_url = current_data[0]
+    
+    # Render to template
+    return render_template("index.html", 
+                           title=title, 
+                           author=author, 
+                           wikipedia_link=wikipedia_link, 
+                           image_url=image_url)
+
+4. Update the Google Sheet
+
+Add a new Image URL column to your Currently Reading Google Sheet. The columns should look like this:
+
+Title	Author	Wikipedia Link	Image URL
+Corazón tan blanco	Javier Marías	https://en.wikipedia.org/wiki/Corazón_tan_blanca	https://example.com/image.jpg
+
+5. Verify the Implementation
+	1.	Test the Site:
+	•	The book title should be clickable and link to its Wikipedia page.
+	•	The book cover image should appear beside the book info.
+	2.	Check Responsiveness:
+	•	Ensure the layout looks good on both desktop and mobile devices.
+	3.	Error Handling:
+	•	If a book doesn’t have an image URL, handle it gracefully by showing a placeholder or leaving the space blank.
+
+This approach ensures the “Currently Reading” section is visually appealing and remains aligned with the minimalist theme. Let me know if you need further clarification!

@@ -1,0 +1,253 @@
+Here are detailed instructions for starting and building your project “La Biblioteca de Nicholas” from scratch. These instructions consider the structure of the Google Sheet and ensure that the website meets your requirements.
+
+Step 1: Understand the Google Sheet Structure
+
+The Google Sheet contains the following tabs:
+	1.	Currently Reading
+	•	Columns: Title, Author, Start Date, Wikipedia Link
+	•	Example:
+
+Title	Author	Start Date	Wikipedia Link
+Corazón Tan Blanca	Javier Marías	December 20, 2025	https://en.wikipedia.org/wiki/Corazón_tan_blanca
+
+
+	2.	Reading History
+	•	Columns: Title, Author, Year
+	•	Example:
+
+Title	Author	Year
+Leviathan Falls	James S.A. Corey	2022
+
+Step 2: Project Setup
+
+1. Environment Setup
+	1.	Create a New Project:
+	•	Use a platform like Replit, Vercel, or a local Python development environment.
+	2.	Install Required Libraries:
+	•	Use the following Python packages:
+
+pip install flask google-api-python-client google-auth google-auth-httplib2 certifi
+
+
+	3.	Folder Structure:
+
+LaBiblioteca/
+├── static/
+│   ├── css/
+│   │   └── style.css
+├── templates/
+│   └── index.html
+├── app.py
+└── requirements.txt
+
+
+	4.	Add the requirements.txt file:
+
+Flask
+google-api-python-client
+google-auth
+google-auth-httplib2
+certifi
+
+2. Google Cloud Setup
+	1.	Enable Google Sheets API:
+	•	Go to the Google Cloud Console.
+	•	Create a new project or use an existing one.
+	•	Enable the Google Sheets API.
+	2.	Create Service Account:
+	•	Create a service account and download the JSON credentials file.
+	•	Share the Google Sheet with the service account email (e.g., your-service-account@your-project.iam.gserviceaccount.com) with “Editor” permissions.
+	3.	Save the JSON File:
+	•	Place the downloaded credentials file in your project directory as credentials.json.
+
+3. Flask Application
+
+app.py
+
+from flask import Flask, render_template
+from googleapiclient.discovery import build
+from google.oauth2.service_account import Credentials
+
+app = Flask(__name__)
+
+# Google Sheets setup
+SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
+SERVICE_ACCOUNT_FILE = 'credentials.json'
+SPREADSHEET_ID = '1sO8J6OgTKrwy3WLqfmfyBNsggT4AIgGb158cZAGiy2A'
+
+credentials = Credentials.from_service_account_file(
+    SERVICE_ACCOUNT_FILE, scopes=SCOPES
+)
+service = build('sheets', 'v4', credentials=credentials)
+
+# Fetch current book
+def fetch_current_book():
+    range_name = "'Currently Reading'!A2:D2"
+    try:
+        result = service.spreadsheets().values().get(
+            spreadsheetId=SPREADSHEET_ID, range=range_name
+        ).execute()
+        values = result.get('values', [])
+        if values:
+            title, author, start_date, wiki_link = values[0]
+            return {
+                'title': title,
+                'author': author,
+                'start_date': start_date,
+                'wiki_link': wiki_link
+            }
+        return None
+    except Exception as e:
+        print(f"Error fetching current book: {e}")
+        return None
+
+# Fetch reading history
+def fetch_reading_history():
+    range_name = "'Reading History'!A2:C"
+    try:
+        result = service.spreadsheets().values().get(
+            spreadsheetId=SPREADSHEET_ID, range=range_name
+        ).execute()
+        values = result.get('values', [])
+        history = {}
+        for row in values:
+            title, author, year = row
+            if year not in history:
+                history[year] = []
+            history[year].append(f"{title} by {author}")
+        return history
+    except Exception as e:
+        print(f"Error fetching reading history: {e}")
+        return {}
+
+@app.route("/")
+def home():
+    current_book = fetch_current_book()
+    reading_history = fetch_reading_history()
+    return render_template(
+        "index.html",
+        current_book=current_book,
+        reading_history=reading_history
+    )
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
+4. HTML Template
+
+templates/index.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>La Biblioteca de Nicholas</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header>
+        <h1>La Biblioteca de Nicholas</h1>
+    </header>
+    <main>
+        <section id="currently-reading">
+            <h2>Currently Reading</h2>
+            {% if current_book %}
+                <div class="current-book">
+                    <h3>{{ current_book.title }}</h3>
+                    <p><strong>Author:</strong> {{ current_book.author }}</p>
+                    <p><strong>Started:</strong> {{ current_book.start_date }}</p>
+                    <p>
+                        <a href="{{ current_book.wiki_link }}" target="_blank">Learn more on Wikipedia</a>
+                    </p>
+                </div>
+            {% else %}
+                <p>No current book found.</p>
+            {% endif %}
+        </section>
+
+        <section id="previously-read">
+            <h2>Previously Read</h2>
+            {% if reading_history %}
+                <ul>
+                    {% for year, books in reading_history.items() %}
+                        <li>
+                            <strong>{{ year }}</strong>
+                            <ul>
+                                {% for book in books %}
+                                    <li>{{ book }}</li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No reading history found.</p>
+            {% endif %}
+        </section>
+    </main>
+    <footer>
+        <p>&copy; {{ current_year }} La Biblioteca de Nicholas</p>
+    </footer>
+</body>
+</html>
+
+5. CSS for Minimalist Design
+
+static/css/style.css
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    color: #333;
+}
+
+header {
+    background: #007acc;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+}
+
+main {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #f9f9f9;
+}
+
+h1, h2 {
+    text-align: center;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+ul li {
+    margin: 10px 0;
+}
+
+footer {
+    text-align: center;
+    margin: 20px 0;
+    font-size: 0.9em;
+    color: #666;
+}
+
+6. Test the Project
+	1.	Run the Flask app locally.
+	2.	Ensure the site loads the current book and reading history correctly.
+	3.	Verify the minimalist design.
+	4.	Deploy to a hosting service like Replit, Vercel, or a cloud server.
+
+Outcome
+
+This setup ensures:
+	•	A clean and minimalist design.
+	•	Dynamic updates from your Google Sheet.
+	•	Accurate display of the current book and historical reading list.
+
+Let me know if further clarifications or adjustments are needed! 😊

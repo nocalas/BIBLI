@@ -1,0 +1,143 @@
+The issue seems to stem from the fact that the “Currently Reading” section is not properly parsing or displaying the data fetched from the Google Sheet. Here are the steps to troubleshoot and resolve this problem:
+
+1. Check Data Retrieval
+	•	The logs indicate that the raw response from the “Currently Reading” sheet contains valid data:
+
+DEBUG:sheets_client:Raw response from sheet 'Currently Reading': "Corazón Tan Blanca","Javier Marías ","December 20, 2025"
+
+
+	•	However, the parsed data is empty:
+
+DEBUG:sheets_client:Parsed data from sheet 'Currently Reading': []
+
+
+
+This suggests an issue with parsing the data after fetching it from the sheet.
+
+2. Update Data Parsing Logic
+
+Google Sheets often returns CSV-like data when using the gviz API. Make sure the data is parsed correctly.
+
+Fix Parsing Logic
+
+If the data comes in CSV format, use Python’s csv module to parse it correctly:
+
+import csv
+from io import StringIO
+
+def parse_sheet_data(raw_data):
+    try:
+        # Convert raw data to a CSV reader
+        csv_reader = csv.reader(StringIO(raw_data))
+        parsed_data = list(csv_reader)
+        return parsed_data
+    except Exception as e:
+        print(f"Error parsing sheet data: {e}")
+        return []
+
+Use this function to parse the raw data fetched from the “Currently Reading” sheet.
+
+3. Fix fetch_current_book Function
+
+Update the fetch_current_book function to handle the raw response and parse it correctly:
+
+def fetch_current_book(sheet_id, range_name):
+    try:
+        result = service.spreadsheets().values().get(
+            spreadsheetId=sheet_id, range=range_name
+        ).execute()
+        values = result.get("values", [])
+        if not values or len(values[0]) < 4:  # Ensure all columns are present
+            return None
+        title, author, start_date, wiki_link = values[0]
+        return {
+            "title": title,
+            "author": author,
+            "start_date": start_date,
+            "wiki_link": wiki_link,
+        }
+    except Exception as e:
+        print(f"Error fetching current book: {e}")
+        return None
+
+4. Ensure HTML Template Renders the Current Book
+
+Verify that the template is rendering the current_book variable properly.
+
+HTML Template Update
+
+Update the “Currently Reading” section to ensure it uses the current_book object:
+
+<section id="currently-reading">
+    <h2>Currently Reading</h2>
+    {% if current_book %}
+        <div class="current-book">
+            <h3>{{ current_book.title }}</h3>
+            <p><strong>Author:</strong> {{ current_book.author }}</p>
+            <p><strong>Started:</strong> {{ current_book.start_date }}</p>
+            <p>
+                <a href="{{ current_book.wiki_link }}" target="_blank">Learn more on Wikipedia</a>
+            </p>
+        </div>
+    {% else %}
+        <p>No book currently being read</p>
+    {% endif %}
+</section>
+
+5. Test Google Sheets API Response
+
+Add a debug statement to log the fetched data before parsing:
+
+def fetch_current_book(sheet_id, range_name):
+    try:
+        result = service.spreadsheets().values().get(
+            spreadsheetId=sheet_id, range=range_name
+        ).execute()
+        print(f"Fetched data: {result}")
+        # Add parsing logic here
+    except Exception as e:
+        print(f"Error fetching data: {e}")
+
+6. Validate Google Sheets Data
+
+Ensure the “Currently Reading” sheet has data structured like this:
+
+Title	Author	Start Date	Wikipedia Link
+Corazón Tan Blanca	Javier Marías	December 20, 2025	https://en.wikipedia.org/wiki/Corazón_tan_blanca
+
+7. Error Handling and Fallbacks
+
+If data retrieval fails, ensure the application gracefully handles missing data.
+
+@app.route("/")
+def home():
+    current_book = fetch_current_book(SHEET_ID, "'Currently Reading'!A2:D2")
+    reading_history = fetch_reading_history(SHEET_ID, "'Reading History'!A2:C")
+    
+    # Fallback for current book
+    if not current_book:
+        current_book = {
+            "title": "No book currently being read",
+            "author": "",
+            "start_date": "",
+            "wiki_link": "",
+        }
+    
+    return render_template(
+        "index.html",
+        current_book=current_book,
+        reading_history=reading_history,
+    )
+
+8. Test and Debug
+	1.	Restart the Flask server.
+	2.	Access the homepage and check the “Currently Reading” section.
+	3.	Ensure the data is displayed correctly.
+	4.	If issues persist, review the logs for errors during data retrieval or rendering.
+
+Outcome
+
+After implementing these changes:
+	•	The “Currently Reading” section will correctly display the book details from the sheet.
+	•	Graceful error handling will ensure fallback messages are shown if data is unavailable.
+	•	Debug logs will help identify issues with Google Sheets integration or parsing.

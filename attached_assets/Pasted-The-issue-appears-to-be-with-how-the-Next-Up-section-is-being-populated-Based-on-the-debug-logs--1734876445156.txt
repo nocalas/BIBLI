@@ -1,0 +1,100 @@
+The issue appears to be with how the “Next Up” section is being populated. Based on the debug logs:
+	1.	Sheet Parsing is Successful:
+	•	The response from the Google Sheets API shows the expected structure for the “Next Up” data ([['La ciudad y sus muros inciertos', 'Haruki Murakami', 'https://en.wikipedia.org/wiki/The_City_and_Its_Uncertain_Walls']]).
+	•	This means the fetching and parsing logic is functioning correctly.
+	2.	Rendering Logic May Have Issues:
+	•	The parsed data for “Next Up” books isn’t rendering as expected. This could be a problem in how the template (index.html) handles the data.
+	3.	Potential Issues:
+	•	Template Variable Misalignment: Ensure the variable passed to the template (next_up) matches the variable referenced in index.html.
+	•	HTML Structure: Verify that the loop is correctly iterating over the data and rendering each book.
+
+Steps to Debug and Fix
+
+1. Check the index.html Template
+
+Ensure the “Next Up” section in your HTML matches this structure:
+
+<section class="next-up">
+    <h2>Next Up</h2>
+    <div class="next-up-container">
+        {% if next_up %}
+            {% for book in next_up %}
+                <div class="book">
+                    <h3>
+                        <a href="{{ book[2] }}" target="_blank">{{ book[0] }}</a>
+                    </h3>
+                    <p>by {{ book[1] }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No books in the queue.</p>
+        {% endif %}
+    </div>
+</section>
+
+	•	Explanation:
+	•	book[0]: Book title.
+	•	book[1]: Author name.
+	•	book[2]: Wikipedia link.
+
+2. Test the Data Passing
+
+Modify the index() function in app.py to log the next_up data before rendering:
+
+@app.route('/')
+def index():
+    currently_reading = get_sheet_data("Currently Reading")
+    next_up = get_next_up_sheet_data("THIRD_GOOGLE_SHEET_ID")  # Replace with your sheet ID
+    reading_history = get_sheet_data("Reading History")
+    print("Next Up Books:", next_up)  # Log the data for debugging
+    return render_template(
+        'index.html',
+        currently_reading=currently_reading,
+        next_up=next_up,
+        reading_history=reading_history
+    )
+
+	•	Run the app and check the console to confirm the next_up data is correctly fetched and passed.
+
+3. Validate Data Handling in the Template
+
+If the data appears in the logs but doesn’t render, add debug placeholders in the template to confirm the variable’s contents:
+
+<section class="next-up">
+    <h2>Next Up</h2>
+    <pre>{{ next_up }}</pre> <!-- Debug output -->
+    <div class="next-up-container">
+        {% if next_up %}
+            {% for book in next_up %}
+                <div class="book">
+                    <h3>
+                        <a href="{{ book[2] }}" target="_blank">{{ book[0] }}</a>
+                    </h3>
+                    <p>by {{ book[1] }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No books in the queue.</p>
+        {% endif %}
+    </div>
+</section>
+
+4. Check Flask Debug Logs
+
+Review the debug output in your Flask logs for any errors during template rendering.
+
+Additional Tips
+	1.	Ensure the “Next Up” Section is Rendered:
+	•	Make sure the <section class="next-up"> block is included between “Currently Reading” and “Reading History” in index.html.
+	2.	CSS for Debugging:
+	•	Temporarily add a border or background color to the “Next Up” container in custom.css to verify its position on the page:
+
+.next-up-container {
+    border: 2px solid red; /* Debug */
+}
+
+
+	3.	Google Sheet Data Range:
+	•	Confirm that the “Next Up” sheet contains rows starting from the expected range (A2:D).
+
+Would you like further assistance debugging or testing these steps?

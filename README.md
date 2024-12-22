@@ -1,2 +1,3 @@
-# BIBLI
-The bibilioteca de Nicholas project
+CURRENT_READING_SPREADSHEET_ID=your_current_reading_sheet_id
+   READING_HISTORY_SPREADSHEET_ID=your_reading_history_sheet_id
+   FLASK_SECRET_KEY=your_secret_key

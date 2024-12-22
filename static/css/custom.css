@@ -1,0 +1,137 @@
+:root {
+    --primary-green: #198754;  /* Bootstrap's success color */
+    --light-green: #d1e7dd;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+}
+
+/* Header Styles */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+/* Card Styles */
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+/* Frame for the Currently Reading Section */
+.currently-reading-frame {
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 20px;
+    max-width: 800px;
+    margin: 20px auto;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* Center Content Vertically and Horizontally */
+.currently-reading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+/* Title and Author Section */
+.book-info {
+    margin-bottom: 15px;
+}
+
+/* Clickable Title Link */
+.book-info h2 a {
+    text-decoration: none;
+    font-size: 1.8em;
+    font-weight: bold;
+    color: var(--primary-green);
+    transition: color 0.2s ease-in-out;
+}
+
+.book-info h2 a:hover {
+    color: #3498db;
+}
+
+/* Author Text */
+.book-info p {
+    font-size: 1.2em;
+    color: #7f8c8d;
+    margin-top: 5px;
+}
+
+/* Book Cover Image Styling */
+.book-image img {
+    max-width: 200px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 15px;
+}
+
+/* Footer Styles */
+.footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Accordion Styles */
+.accordion-button:not(.collapsed) {
+    background-color: var(--light-green);
+    color: var(--primary-green);
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: var(--primary-green);
+}
+
+/* Responsive Design for Small Screens */
+@media (max-width: 768px) {
+    .currently-reading-frame {
+        padding: 15px;
+    }
+
+    .book-info h2 {
+        font-size: 1.5em;
+    }
+
+    .book-info p {
+        font-size: 1em;
+    }
+
+    .book-image img {
+        max-width: 150px;
+    }
+
+    .card {
+        margin-bottom: 1rem;
+    }
+}
+
+/* About Section Styles */
+.about-section {
+    border-top: 1px solid #dee2e6;
+    margin-top: 2rem;
+}
+
+.about-section p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #666;
+    margin: 0;
+}

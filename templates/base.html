@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Biblioteca de Nicholas</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fas fa-book-reader me-2"></i>
+                La Biblioteca de Nicholas
+            </a>
+        </div>
+    </nav>
+
+    <main class="container py-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- About This Site Section -->
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mx-auto text-center">
+                <div class="about-section py-4">
+                    <p class="text-muted">
+                        <i class="fas fa-book me-2"></i>
+                        This site was made entirely with Replit and ChatGPT. As someone with absolutely no coding experience, 
+                        I wanted to see what was possible. I also want to read more. Let's see if this works as motivation.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">
+                &copy; {{ current_year }} La Biblioteca de Nicholas | 
+                <a href="https://nicholasoconnor.com" target="_blank" class="text-decoration-none">
+                    nicholasoconnor.com
+                </a>
+            </span>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

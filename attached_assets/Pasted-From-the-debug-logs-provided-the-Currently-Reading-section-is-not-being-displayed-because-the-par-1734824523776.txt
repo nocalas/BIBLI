@@ -1,0 +1,153 @@
+From the debug logs provided, the “Currently Reading” section is not being displayed because the parsed data is empty, even though the raw response from Google Sheets contains valid data. This indicates that there is an issue with the data parsing or the way it is being handled.
+
+Steps to Fix the Issue
+
+1. Update the Parsing Logic
+
+It seems that the raw response is being retrieved in a CSV-like format. You need to parse it correctly.
+
+Fix the Parsing Logic
+
+If the raw response is already in CSV format, use the Python csv module to parse it correctly:
+
+import csv
+from io import StringIO
+
+def parse_sheet_data(raw_data):
+    try:
+        # Convert the raw data into a CSV reader object
+        csv_reader = csv.reader(StringIO(raw_data))
+        parsed_data = [row for row in csv_reader]
+        return parsed_data
+    except Exception as e:
+        print(f"Error parsing sheet data: {e}")
+        return []
+
+Replace the existing parsing logic with this function.
+
+2. Update fetch_current_book
+
+Update the function responsible for fetching the current book to handle the raw response properly:
+
+import requests
+
+def fetch_current_book(sheet_url):
+    try:
+        # Fetch the raw CSV data from the Google Sheets API
+        response = requests.get(sheet_url)
+        if response.status_code != 200:
+            print(f"Error fetching sheet: {response.status_code}")
+            return None
+        
+        # Parse the raw data
+        raw_data = response.text
+        parsed_data = parse_sheet_data(raw_data)
+        
+        if len(parsed_data) < 1:
+            print("No data found in sheet.")
+            return None
+        
+        # Extract the first row of data
+        title, author, start_date, wiki_link = parsed_data[0]
+        return {
+            "title": title.strip(),
+            "author": author.strip(),
+            "start_date": start_date.strip(),
+            "wiki_link": wiki_link.strip()
+        }
+    except Exception as e:
+        print(f"Error fetching current book: {e}")
+        return None
+
+Update the URL used for fetching the sheet:
+
+CURRENTLY_READING_URL = "https://docs.google.com/spreadsheets/d/1sO8J6OgTKrwy3WLqfmfyBNsggT4AIgGb158cZAGiy2A/gviz/tq?tqx=out:csv&sheet=Currently%20Reading&range=A2:D"
+
+3. Update the Route in Flask
+
+Ensure the / route fetches the current book properly and passes it to the template:
+
+@app.route("/")
+def home():
+    current_book = fetch_current_book(CURRENTLY_READING_URL)
+    reading_history = fetch_reading_history(READING_HISTORY_URL)
+    
+    return render_template(
+        "index.html",
+        current_book=current_book,
+        reading_history=reading_history
+    )
+
+4. HTML Template Update
+
+Ensure the template is structured to handle the current book data correctly. Update the “Currently Reading” section as follows:
+
+<section id="currently-reading">
+    <h2>Currently Reading</h2>
+    {% if current_book %}
+        <div class="current-book">
+            <h3>{{ current_book.title }}</h3>
+            <p><strong>Author:</strong> {{ current_book.author }}</p>
+            <p><strong>Started:</strong> {{ current_book.start_date }}</p>
+            <p>
+                <a href="{{ current_book.wiki_link }}" target="_blank">Learn more on Wikipedia</a>
+            </p>
+        </div>
+    {% else %}
+        <p>No book currently being read.</p>
+    {% endif %}
+</section>
+
+5. Debugging the Issue
+
+If the issue persists, add debugging statements to identify where the data pipeline is breaking:
+
+def fetch_current_book(sheet_url):
+    try:
+        # Fetch the raw CSV data
+        response = requests.get(sheet_url)
+        print(f"Response status code: {response.status_code}")
+        print(f"Raw response text: {response.text[:500]}")  # Print the first 500 characters
+        
+        # Parse the data
+        raw_data = response.text
+        parsed_data = parse_sheet_data(raw_data)
+        print(f"Parsed data: {parsed_data}")
+        
+        if len(parsed_data) < 1:
+            print("No data found in sheet.")
+            return None
+        
+        title, author, start_date, wiki_link = parsed_data[0]
+        return {
+            "title": title.strip(),
+            "author": author.strip(),
+            "start_date": start_date.strip(),
+            "wiki_link": wiki_link.strip()
+        }
+    except Exception as e:
+        print(f"Error fetching current book: {e}")
+        return None
+
+6. Validate Data in Google Sheets
+
+Verify that the “Currently Reading” tab in Google Sheets has valid data in the following format:
+
+Title	Author	Start Date	Wikipedia Link
+Corazón Tan Blanca	Javier Marías	December 20, 2025	https://en.wikipedia.org/wiki/Corazón_tan_blanca
+
+7. Test Locally
+	1.	Restart the Flask server:
+
+python app.py
+
+
+	2.	Access the site and confirm:
+	•	The “Currently Reading” section shows the correct book details.
+	•	Debug logs confirm the correct parsing of the sheet data.
+
+Expected Outcome
+
+After these changes:
+	•	The “Currently Reading” section will properly display the current book fetched from the Google Sheet.
+	•	Debugging statements will provide clarity if issues persist.

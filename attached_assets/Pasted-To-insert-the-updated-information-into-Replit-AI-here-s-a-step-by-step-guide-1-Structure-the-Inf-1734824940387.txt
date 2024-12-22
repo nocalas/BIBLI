@@ -1,0 +1,141 @@
+To insert the updated information into Replit AI, here’s a step-by-step guide:
+
+1. Structure the Information
+
+Replit AI works best with clear instructions and a logical order. Use the following format:
+
+Header
+
+Start with a clear description of the problem or goal:
+
+	I am creating a web application using Flask that tracks books I have read. I need to adjust my project so that the “Currently Reading” section shows only the title and author of the current book and the “Reading History” section lists all books grouped by year as a bullet-point list.
+
+Specific Requests
+
+Break your request into specific tasks. This ensures Replit AI focuses on exactly what you need.
+	1.	Simplify the fetch_current_book function:
+	Replace the existing function to only fetch the title and author from the “Currently Reading” sheet. The URL to fetch data is <YOUR_URL>.
+
+Example code:
+
+def fetch_current_book(sheet_url):
+    import requests
+    import csv
+    from io import StringIO
+
+    try:
+        response = requests.get(sheet_url)
+        if response.status_code != 200:
+            return None
+        raw_data = response.text
+        csv_reader = csv.reader(StringIO(raw_data))
+        rows = [row for row in csv_reader if row]
+        if rows and len(rows[0]) >= 2:
+            title, author = rows[0][0], rows[0][1]
+            return {"title": title.strip(), "author": author.strip()}
+        return None
+    except Exception as e:
+        print(f"Error fetching current book: {e}")
+        return None
+
+
+	2.	Update the HTML template:
+	Modify the “Currently Reading” section to display only the title and author. Remove any references to a start date or Wikipedia link.
+
+Example:
+
+<section id="currently-reading">
+    <h2>Currently Reading</h2>
+    {% if current_book %}
+        <div>
+            <h3>{{ current_book.title }}</h3>
+            <p>By {{ current_book.author }}</p>
+        </div>
+    {% else %}
+        <p>No book currently being read.</p>
+    {% endif %}
+</section>
+
+
+	3.	Adjust the fetch_reading_history function:
+	Fetch books grouped by year for the “Reading History” section.
+
+Example code:
+
+def fetch_reading_history(sheet_url):
+    import requests
+    import csv
+    from io import StringIO
+
+    try:
+        response = requests.get(sheet_url)
+        if response.status_code != 200:
+            return {}
+
+        raw_data = response.text
+        csv_reader = csv.reader(StringIO(raw_data))
+        rows = [row for row in csv_reader if row]
+        history = {}
+        for row in rows:
+            if len(row) < 3:
+                continue
+            title, author, year = row[0].strip(), row[1].strip(), row[2].strip()
+            if year not in history:
+                history[year] = []
+            history[year].append(f"{title} by {author}")
+        return history
+    except Exception as e:
+        print(f"Error fetching reading history: {e}")
+        return {}
+
+
+	4.	Update the “Reading History” HTML section:
+	Modify the template to display books grouped by year as a bullet-point list.
+
+Example:
+
+<section id="reading-history">
+    <h2>Reading History</h2>
+    {% if reading_history %}
+        {% for year, books in reading_history.items() %}
+            <h3>{{ year }}</h3>
+            <ul>
+                {% for book in books %}
+                    <li>{{ book }}</li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+    {% else %}
+        <p>No reading history found.</p>
+    {% endif %}
+</section>
+
+
+	5.	Verify Flask route setup:
+	Ensure the home() route integrates the updated functions:
+
+@app.route("/")
+def home():
+    current_book = fetch_current_book("<CURRENTLY_READING_URL>")
+    reading_history = fetch_reading_history("<READING_HISTORY_URL>")
+    return render_template("index.html", current_book=current_book, reading_history=reading_history)
+
+2. Paste into Replit AI
+
+Copy each section into Replit AI and run them sequentially. For example:
+	1.	Paste the first request (e.g., simplify the fetch_current_book function) into Replit AI and ask it to replace your existing code.
+	2.	Once completed, move on to updating the HTML template, Flask routes, etc.
+
+3. Test Incrementally
+	•	After making changes suggested by Replit AI, run your application locally to verify:
+	•	The “Currently Reading” section displays correctly.
+	•	The “Reading History” section displays books grouped by year.
+	•	Fix any errors immediately by providing Replit AI with the error messages and specific code sections.
+
+4. Use Replit’s Built-in Tools
+	•	Use the Version Control feature in Replit to track changes.
+	•	Test the app with Replit’s Web Preview to ensure the updates render correctly.
+
+5. Provide Feedback for Refinement
+
+If the app still doesn’t work as intended, provide Replit AI with the specific output (e.g., logs, error messages) and the problematic sections of the code.
