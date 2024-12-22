@@ -3,6 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <meta name="title" content="La Biblioteca de Nicholas">
+    <meta name="description" content="What I read, have read and will read. Lo que leo, lo que he leído y lo que leeré.">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="La Biblioteca de Nicholas">
+    <meta property="og:description" content="What I read, have read and will read. Lo que leo, lo que he leído y lo que leeré.">
+    <meta property="og:image" content="{{ url_for('static', filename='images/meta-image.jpg', _external=True) }}">
+    <meta property="og:url" content="https://biblioteca.nicholasoconnor.com">
+    <meta property="og:type" content="website">
+
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="La Biblioteca de Nicholas">
+    <meta name="twitter:description" content="What I read, have read and will read. Lo que leo, lo que he leído y lo que leeré.">
+    <meta name="twitter:image" content="{{ url_for('static', filename='images/meta-image.jpg', _external=True) }}">
+
     <title>La Biblioteca de Nicholas</title>
 
     <!-- Bootstrap CSS -->
@@ -34,7 +50,7 @@
                     <p class="text-muted">
                         <i class="fas fa-book me-2"></i>
                         This site was made entirely with Replit and ChatGPT. As someone with absolutely no coding experience, 
-                        I wanted to see what was possible. I also want to read more. Let's see if this works as motivation.
+                        I wanted to see what was possible. I also want to read more and remember what I have read. Let's see if this works as motivation.
                     </p>
                 </div>
             </div>
