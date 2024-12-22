@@ -27,6 +27,9 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
+
+    <!-- Umami Analytics Script -->
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="c0e23bbf-e75a-4898-a399-8bf35247a775"></script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-success">
@@ -42,6 +45,22 @@
         {% block content %}{% endblock %}
     </main>
 
+  <!-- Ghost Signup Form Section -->
+  <div style="height: 40vmin; min-height: 330px">
+      <script src="https://cdn.jsdelivr.net/ghost/signup-form@~0.2/umd/signup-form.min.js" 
+                data-background-color="#198754"
+                data-text-color="#FFFFFF"
+                data-button-color="#15171A"
+                data-button-text-color="#FFFFFF"
+                data-title="Nicholas O&#039;Connor"
+                data-description="Media and marketing in the Americas. "
+                data-icon="https://www.nicholasoconnor.com/content/images/size/w192h192/size/w256h256/2020/03/unnamed.png"
+                data-site="https://www.nicholasoconnor.com/"
+                data-locale="en"
+                async>
+        </script>
+    </div>
+    
     <!-- About This Site Section -->
     <div class="container">
         <div class="row">
